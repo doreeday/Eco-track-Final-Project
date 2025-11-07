@@ -1,0 +1,62 @@
+.register-card {
+  width: 320px;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.register-card.light {
+  background-color: #FFFFFF;
+  color: #065F46;
+}
+
+.register-card.dark {
+  background: linear-gradient(145deg, #0F172A, #020C22);
+  color: #BBF7D0;
+}
+
+.register-title {
+  margin-bottom: 1.5rem;
+}
+
+.input-group {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #10B981;
+  background-color: #F3F5F5;
+  color: #065F46;
+}
+
+.register-card.dark .input-group input {
+  background-color: #161C2A;
+  color: #BBF7D0;
+}
+
+.register-btn {
+  width: 100%;
+  padding: 0.7rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  background: linear-gradient(90deg, #059669, #16A34A);
+  color: #FFFFFF;
+  transition: transform 0.2s;
+}
+
+.register-btn:hover {
+  transform: scale(1.03);
+}
