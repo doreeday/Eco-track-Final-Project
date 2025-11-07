@@ -1,48 +1,114 @@
 import React, { useState } from "react";
-import InputField from "../components/InputField";
+import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
-import { useNavigate } from "react-router-dom";
 
 export default function Login({ darkMode, setUserData }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!loginData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(loginData.email)) {
+      newErrors.email = "Email is invalid";
+    }
+    
+    if (!loginData.password) {
+      newErrors.password = "Password is required";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setLoginData({ ...loginData, [name]: value });
+    // Clear error for this field when user types
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
+    setErrorMessage("");
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
+    setErrorMessage("");
+    
+    if (!validateForm()) {
+      return;
+    }
 
-    // Sample condition: if email includes "admin" → admin dashboard
-    const role = email.includes("admin") ? "admin" : "user";
+    setIsLoading(true);
 
-    const userInfo = {
-      firstName: "John",
-      lastName: role === "admin" ? "Admin" : "User",
-      role,
-    };
-
-    setUserData(userInfo);
-    navigate(`/${role}`);
+    // Simulate login (replace with actual login logic later)
+    setTimeout(() => {
+      if (loginData.email === "admin@example.com" && loginData.password === "admin123") {
+        setUserData({ ...loginData, accountType: "Admin" });
+        navigate("/admin");
+      } else if (loginData.email === "user@example.com" && loginData.password === "user123") {
+        setUserData({ ...loginData, accountType: "Resident/User" });
+        navigate("/user");
+      } else {
+        setErrorMessage("Invalid email or password. Please try again.");
+      }
+      setIsLoading(false);
+    }, 500);
   };
 
   return (
-    <div className={`login-card ${darkMode ? "dark" : "light"}`}>
-      <img
-        src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
-        alt="avatar"
-        className="avatar"
-      />
-      <h2 className="login-title">Welcome to EcoTrack</h2>
-      <p>Sign in to manage your waste record</p>
+    <div className={`login-container ${darkMode ? "dark" : "light"}`}>
+      <div className="login-card">
+        <div className="profile-image"></div>
+        <h2>Welcome Back</h2>
+        <p>Login to your EcoTrackr account</p>
 
-      <form onSubmit={handleLogin}>
-        <InputField label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <InputField label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button type="submit" className="login-btn">Log in</button>
-      </form>
+        {errorMessage && (
+          <div className="error-message">{errorMessage}</div>
+        )}
 
-      <p className="switch-text">
-        Don’t have an account? <a href="/register">Register here</a>
-      </p>
+        <div className="form-container">
+          <h3>Email Address</h3>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={loginData.email}
+            onChange={handleChange}
+            placeholder="Enter your email"
+            className={errors.email ? 'input-error' : ''}
+          />
+          {errors.email && <div className="field-error">{errors.email}</div>}
+
+          <h3>Password</h3>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={loginData.password}
+            onChange={handleChange}
+            placeholder="Enter your password"
+            className={errors.password ? 'input-error' : ''}
+          />
+          {errors.password && <div className="field-error">{errors.password}</div>}
+
+          <button onClick={handleSubmit} disabled={isLoading}>
+            {isLoading ? 'Logging in...' : 'Login'}
+          </button>
+        </div>
+
+        <p className="register-link">
+          Don't have an account? <Link to="/register">Register here</Link>
+        </p>
+      </div>
     </div>
   );
 }

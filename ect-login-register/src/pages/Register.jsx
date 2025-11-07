@@ -1,45 +1,188 @@
 import React, { useState } from "react";
-import InputField from "../components/InputField";
+import { useNavigate, Link } from "react-router-dom";
 import "./Register.css";
-import { useNavigate } from "react-router-dom";
 
-export default function Register({ darkMode, setUserData }) {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function Register({ setUserData }) {
   const navigate = useNavigate();
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    accountType: "Resident/User",
+  });
+  const [errors, setErrors] = useState({});
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleRegister = (e) => {
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!form.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    } else if (form.firstName.trim().length < 2) {
+      newErrors.firstName = "First name must be at least 2 characters";
+    }
+    
+    if (!form.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    } else if (form.lastName.trim().length < 2) {
+      newErrors.lastName = "Last name must be at least 2 characters";
+    }
+    
+    if (!form.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
+      newErrors.email = "Email is invalid";
+    }
+    
+    if (!form.password) {
+      newErrors.password = "Password is required";
+    } else if (form.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    } else if (!/(?=.*[0-9])/.test(form.password)) {
+      newErrors.password = "Password must contain at least one number";
+    } else if (!/(?=.*[!@#$%^&*])/.test(form.password)) {
+      newErrors.password = "Password must contain at least one special character (!@#$%^&*)";
+    }
+    
+    if (!form.confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (form.password !== form.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    // Clear error for this field when user types
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
+    setErrorMessage("");
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const role = email.includes("admin") ? "admin" : "user";
+    setErrorMessage("");
+    
+    if (!validateForm()) {
+      return;
+    }
 
-    const userInfo = { firstName, lastName, role };
-    setUserData(userInfo);
-    navigate(`/${role}`);
+    setIsLoading(true);
+    
+    // Pass data to parent
+    setUserData(form);
+
+    // Simulate registration delay (replace with actual registration logic later)
+    setTimeout(() => {
+      if (form.accountType === "Admin") {
+        navigate("/admin");
+      } else {
+        navigate("/user");
+      }
+      setIsLoading(false);
+    }, 500);
   };
 
   return (
-    <div className={`register-card ${darkMode ? "dark" : "light"}`}>
-      <img
-        src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
-        alt="avatar"
-        className="avatar"
-      />
-      <h2 className="register-title">Join EcoTrack</h2>
-      <p>Create your account and start making a difference!</p>
+    <div className="register-container">
+      <div className="register-card">
+        <div className="profile-image"></div>
+        <h2>Create Your Account</h2>
+        <p>Join EcoTrackr and start making a difference!</p>
 
-      <form onSubmit={handleRegister}>
-        <InputField label="First Name" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-        <InputField label="Last Name" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-        <InputField label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <InputField label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button type="submit" className="register-btn">Create Account</button>
-      </form>
+        {errorMessage && (
+          <div className="error-message">{errorMessage}</div>
+        )}
 
-      <p className="switch-text">
-        Already have an account? <a href="/">Login here</a>
-      </p>
+        <div className="form-container">
+          <h3>First Name</h3>
+          <input
+            type="text"
+            id="firstName"
+            name="firstName"
+            value={form.firstName}
+            onChange={handleChange}
+            placeholder="Enter your first name"
+            className={errors.firstName ? 'input-error' : ''}
+          />
+          {errors.firstName && <div className="field-error">{errors.firstName}</div>}
+
+          <h3>Last Name</h3>
+          <input
+            type="text"
+            id="lastName"
+            name="lastName"
+            value={form.lastName}
+            onChange={handleChange}
+            placeholder="Enter your last name"
+            className={errors.lastName ? 'input-error' : ''}
+          />
+          {errors.lastName && <div className="field-error">{errors.lastName}</div>}
+
+          <h3>Email Address</h3>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="Enter your email"
+            className={errors.email ? 'input-error' : ''}
+          />
+          {errors.email && <div className="field-error">{errors.email}</div>}
+
+          <h3>Password</h3>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={form.password}
+            onChange={handleChange}
+            placeholder="Create a password"
+            className={errors.password ? 'input-error' : ''}
+          />
+          {errors.password && <div className="field-error">{errors.password}</div>}
+
+          <h3>Confirm Password</h3>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            value={form.confirmPassword}
+            onChange={handleChange}
+            placeholder="Re-enter your password"
+            className={errors.confirmPassword ? 'input-error' : ''}
+          />
+          {errors.confirmPassword && <div className="field-error">{errors.confirmPassword}</div>}
+
+          <h3>Account Type</h3>
+          <select
+            id="accountType"
+            name="accountType"
+            value={form.accountType}
+            onChange={handleChange}
+          >
+            <option value="Resident/User">Resident/User</option>
+            <option value="Admin">Admin</option>
+          </select>
+
+          <button onClick={handleSubmit} disabled={isLoading}>
+            {isLoading ? 'Creating Account...' : 'Create Account'}
+          </button>
+        </div>
+
+        <p className="login-link">
+          Already have an account? <Link to="/">Login here</Link>
+        </p>
+      </div>
     </div>
   );
 }
