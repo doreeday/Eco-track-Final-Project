@@ -1,58 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import DarkModeToggle from './components/DarkModeToggle';
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import DarkModeToggle from "./components/DarkModeToggle";
+import AdminDashboard from "./admin/AdminDashboard";
+import UserDashboard from "./user/UserDashboard";
+import "./index.css";
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    document.body.style.backgroundColor = darkMode ? '#0F172A' : '#F1FDFB';
-    document.body.style.color = darkMode ? '#BBF7D0' : '#065F46';
-    document.body.style.fontFamily = 'Roboto, sans-serif';
-    document.body.style.transition = 'all 0.3s ease';
+    document.body.className = darkMode ? "dark-mode" : "light-mode";
   }, [darkMode]);
-
-  const linkStyle = {
-    margin: '0 1rem',
-    textDecoration: 'none',
-    color: darkMode ? '#BBF7D0' : '#065F46',
-    fontWeight: 600
-  };
 
   return (
     <Router>
-      <div style={{ textAlign: 'center' }}>
-        <nav
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '1rem 2rem'
-          }}
-        >
-          <h2>EcoTrack</h2>
-          <div>
-            <Link to="/" style={linkStyle}>Login</Link>
-            <Link to="/register" style={linkStyle}>Register</Link>
+      <div className="app-container">
+        <nav className="navbar">
+          <h2 className="logo">EcoTrack</h2>
+          <div className="nav-links">
+            <Link to="/" className="nav-link">Login</Link>
+            <Link to="/register" className="nav-link">Register</Link>
             <DarkModeToggle darkMode={darkMode} setDarkMode={setDarkMode} />
           </div>
         </nav>
 
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '3rem',
-            flexWrap: 'wrap',
-            height: '85vh'
-          }}
-        >
+        <div className="page-content">
           <Routes>
-            <Route path="/" element={<Login darkMode={darkMode} />} />
-            <Route path="/register" element={<Register darkMode={darkMode} />} />
+            <Route path="/" element={<Login darkMode={darkMode} setUserData={setUserData} />} />
+            <Route path="/register" element={<Register darkMode={darkMode} setUserData={setUserData} />} />
+            <Route path="/admin" element={<AdminDashboard userData={userData} />} />
+            <Route path="/user" element={<UserDashboard userData={userData} />} />
           </Routes>
         </div>
       </div>
