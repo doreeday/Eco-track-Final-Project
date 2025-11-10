@@ -47,21 +47,4 @@ body {
   min-height: 85vh;
 }
 
-/* Avatar and dashboard */
-.avatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  margin-bottom: 1rem;
-}
-
-.dashboard {
-  text-align: center;
-  margin-top: 5rem;
-}
-/* Logo Container */
-.logo-container {
-  display: flex;
-  align-items: center;
-}
 

@@ -1,183 +1,168 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import "./Register.css";
+import { Link } from "react-router-dom";
+import "../pages/Register.css"; // adjust path if needed
+import logo from "../assets/EcoTrack-logo.png"; 
 
-export default function Register({ setUserData }) {
-  const navigate = useNavigate();
+function Register({ setUserData }) {
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
-    accountType: "Resident/User",
+    accountType: "Resident",
   });
+
   const [errors, setErrors] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
+  // --- Form Validation ---
   const validateForm = () => {
     const newErrors = {};
-    
-    if (!form.firstName.trim()) {
-      newErrors.firstName = "First name is required";
-    } else if (form.firstName.trim().length < 2) {
+
+    if (!form.firstName.trim()) newErrors.firstName = "First name is required";
+    else if (form.firstName.trim().length < 2)
       newErrors.firstName = "First name must be at least 2 characters";
-    }
-    
-    if (!form.lastName.trim()) {
-      newErrors.lastName = "Last name is required";
-    } else if (form.lastName.trim().length < 2) {
+
+    if (!form.lastName.trim()) newErrors.lastName = "Last name is required";
+    else if (form.lastName.trim().length < 2)
       newErrors.lastName = "Last name must be at least 2 characters";
-    }
-    
-    if (!form.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-      newErrors.email = "Email is invalid";
-    }
-    
-    if (!form.password) {
-      newErrors.password = "Password is required";
-    } else if (form.password.length < 6) {
+
+    if (!form.email.trim()) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = "Email is invalid";
+
+    if (!form.password) newErrors.password = "Password is required";
+    else if (form.password.length < 6)
       newErrors.password = "Password must be at least 6 characters";
-    } else if (!/(?=.*[0-9])/.test(form.password)) {
+    else if (!/(?=.*[0-9])/.test(form.password))
       newErrors.password = "Password must contain at least one number";
-    } else if (!/(?=.*[!@#$%^&*])/.test(form.password)) {
-      newErrors.password = "Password must contain at least one special character (!@#$%^&*)";
-    }
-    
-    if (!form.confirmPassword) {
+    else if (!/(?=.*[!@#$%^&*])/.test(form.password))
+      newErrors.password =
+        "Password must contain at least one special character (!@#$%^&*)";
+
+    if (!form.confirmPassword)
       newErrors.confirmPassword = "Please confirm your password";
-    } else if (form.password !== form.confirmPassword) {
+    else if (form.password !== form.confirmPassword)
       newErrors.confirmPassword = "Passwords do not match";
-    }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // --- Handle Input Change ---
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-    // Clear error for this field when user types
-    if (errors[name]) {
-      setErrors({ ...errors, [name]: "" });
-    }
+    setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
     setErrorMessage("");
   };
 
+  // --- Handle Form Submit ---
   const handleSubmit = (e) => {
     e.preventDefault();
     setErrorMessage("");
-    
-    if (!validateForm()) {
-      return;
-    }
+
+    if (!validateForm()) return;
 
     setIsLoading(true);
-    
-    // Pass data to parent
-    setUserData(form);
 
-    // Simulate registration delay (replace with actual registration logic later)
+    if (typeof setUserData === "function") setUserData(form);
+
     setTimeout(() => {
-      if (form.accountType === "Admin") {
-        navigate("/admin");
-      } else {
-        navigate("/user");
-      }
+      setSuccessMessage(`Account created successfully! Welcome, ${form.firstName}!`);
       setIsLoading(false);
-    }, 500);
+    }, 700);
   };
 
   return (
     <div className="register-container">
       <div className="register-card">
-        <div className="profile-image"></div>
+        <div
+          className="profile-image"
+          style={{ backgroundImage: `url(${logo})` }}
+        ></div>
+
         <h2>Create Your Account</h2>
         <p>Join EcoTrackr and start making a difference!</p>
 
-        {errorMessage && (
-          <div className="error-message">{errorMessage}</div>
-        )}
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
+        {successMessage && <div className="success-message">{successMessage}</div>}
 
-        <div className="form-container">
+        <form className="form-container" onSubmit={handleSubmit}>
           <h3>First Name</h3>
           <input
             type="text"
-            id="firstName"
             name="firstName"
             value={form.firstName}
             onChange={handleChange}
             placeholder="Enter your first name"
-            className={errors.firstName ? 'input-error' : ''}
+            className={errors.firstName ? "input-error" : ""}
           />
           {errors.firstName && <div className="field-error">{errors.firstName}</div>}
 
           <h3>Last Name</h3>
           <input
             type="text"
-            id="lastName"
             name="lastName"
             value={form.lastName}
             onChange={handleChange}
             placeholder="Enter your last name"
-            className={errors.lastName ? 'input-error' : ''}
+            className={errors.lastName ? "input-error" : ""}
           />
           {errors.lastName && <div className="field-error">{errors.lastName}</div>}
 
           <h3>Email Address</h3>
           <input
             type="email"
-            id="email"
             name="email"
             value={form.email}
             onChange={handleChange}
             placeholder="Enter your email"
-            className={errors.email ? 'input-error' : ''}
+            className={errors.email ? "input-error" : ""}
           />
           {errors.email && <div className="field-error">{errors.email}</div>}
 
           <h3>Password</h3>
           <input
             type="password"
-            id="password"
             name="password"
             value={form.password}
             onChange={handleChange}
             placeholder="Create a password"
-            className={errors.password ? 'input-error' : ''}
+            className={errors.password ? "input-error" : ""}
           />
           {errors.password && <div className="field-error">{errors.password}</div>}
 
           <h3>Confirm Password</h3>
           <input
             type="password"
-            id="confirmPassword"
             name="confirmPassword"
             value={form.confirmPassword}
             onChange={handleChange}
             placeholder="Re-enter your password"
-            className={errors.confirmPassword ? 'input-error' : ''}
+            className={errors.confirmPassword ? "input-error" : ""}
           />
-          {errors.confirmPassword && <div className="field-error">{errors.confirmPassword}</div>}
+          {errors.confirmPassword && (
+            <div className="field-error">{errors.confirmPassword}</div>
+          )}
 
           <h3>Account Type</h3>
           <select
-            id="accountType"
             name="accountType"
             value={form.accountType}
             onChange={handleChange}
           >
-            <option value="Resident/User">Resident/User</option>
-            <option value="Admin">Admin</option>
+            <option value="Resident">Resident</option>
+            <option value="Admin">Administrator</option>
           </select>
 
-          <button onClick={handleSubmit} disabled={isLoading}>
-            {isLoading ? 'Creating Account...' : 'Create Account'}
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? "Creating Account..." : "Create Account"}
           </button>
-        </div>
+        </form>
 
         <p className="login-link">
           Already have an account? <Link to="/">Login here</Link>
@@ -186,3 +171,5 @@ export default function Register({ setUserData }) {
     </div>
   );
 }
+
+export default Register;

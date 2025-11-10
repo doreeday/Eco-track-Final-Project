@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "./Login.css";
+import logo from "../assets/EcoTrack-logo.png"; 
 
-export default function Login({ darkMode, setUserData }) {
-  const navigate = useNavigate();
+function Login({ darkMode, setUserData }) {
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
+    accountType: "Resident",
   });
   const [errors, setErrors] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const validateForm = () => {
     const newErrors = {};
@@ -30,9 +32,9 @@ export default function Login({ darkMode, setUserData }) {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setLoginData({ ...loginData, [name]: value });
-    // Clear error for this field when user types
+  const { name, value } = e.target;
+  setLoginData({ ...loginData, [name]: value });
+
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
     }
@@ -49,16 +51,23 @@ export default function Login({ darkMode, setUserData }) {
 
     setIsLoading(true);
 
-    // Simulate login (replace with actual login logic later)
     setTimeout(() => {
-      if (loginData.email === "admin@example.com" && loginData.password === "admin123") {
-        setUserData({ ...loginData, accountType: "Admin" });
-        navigate("/admin");
-      } else if (loginData.email === "user@example.com" && loginData.password === "user123") {
-        setUserData({ ...loginData, accountType: "Resident/User" });
-        navigate("/user");
+      if (
+        loginData.accountType === "Admin" &&
+        loginData.email === "admin@example.com" &&
+        loginData.password === "admin123"
+      ) {
+        setUserData({ ...loginData });
+        setSuccessMessage("Login successful! Welcome Admin.");
+      } else if (
+        loginData.accountType === "Resident/User" &&
+        loginData.email === "user@example.com" &&
+        loginData.password === "user123"
+      ) {
+        setUserData({ ...loginData });
+        setSuccessMessage("Login successful! Welcome User.");
       } else {
-        setErrorMessage("Invalid email or password. Please try again.");
+        setErrorMessage("Invalid email, password, or account type. Please try again.");
       }
       setIsLoading(false);
     }, 500);
@@ -67,12 +76,18 @@ export default function Login({ darkMode, setUserData }) {
   return (
     <div className={`login-container ${darkMode ? "dark" : "light"}`}>
       <div className="login-card">
-        <div className="profile-image"></div>
+       <div
+          className="profile-image"
+          style={{ backgroundImage: `url(${logo})` }}
+        ></div>
         <h2>Welcome Back</h2>
         <p>Login to your EcoTrackr account</p>
 
         {errorMessage && (
           <div className="error-message">{errorMessage}</div>
+        )}
+        {successMessage && (
+          <div className="success-message">{successMessage}</div>
         )}
 
         <div className="form-container">
@@ -100,6 +115,17 @@ export default function Login({ darkMode, setUserData }) {
           />
           {errors.password && <div className="field-error">{errors.password}</div>}
 
+          <h3>Account Type</h3>
+          <select
+            id="accountType"
+            name="accountType"
+            value={loginData.accountType}
+            onChange={handleChange}
+          >
+            <option value="Resident">Resident</option>
+            <option value="Admin">Administrator</option>
+          </select>
+
           <button onClick={handleSubmit} disabled={isLoading}>
             {isLoading ? 'Logging in...' : 'Login'}
           </button>
@@ -112,3 +138,4 @@ export default function Login({ darkMode, setUserData }) {
     </div>
   );
 }
+export default Login;
